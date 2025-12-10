@@ -1,50 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Wrapper</title>
-
 <style>
-  html, body {
+  html, body, iframe {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-  }
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+    border: 0;
   }
 </style>
 </head>
-
 <body>
 
-<iframe id="site"></iframe>
+<!-- The iframe will load the target site -->
+<iframe id="site" src="{{TARGET_URL}}"></iframe>
 
 <script>
   const frame = document.getElementById("site");
-  const initialURL = new URLSearchParams(location.search).get("url");
 
-  // Load the initial target page
-  frame.src = initialURL;
-
-  // Track last known URL
+  // Track the last known URL
   let lastURL = frame.src;
 
-  // Check every 300ms for navigation changes
+  // Check every 300ms for navigation
   setInterval(() => {
     try {
-      // If same-origin: we can read iframe URL normally
+      // Same-origin: we can read location.href
       const current = frame.contentWindow.location.href;
       if (current !== lastURL) {
         lastURL = current;
         parent.postMessage({ type: "nav", url: current }, "*");
       }
     } catch (err) {
-      // Cross-origin navigation happened OR same-origin error
-      // In either case, frame.src has the NEW url
+      // Cross-origin navigation
       if (frame.src !== lastURL) {
         lastURL = frame.src;
         parent.postMessage({ type: "nav", url: frame.src }, "*");
